@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block content %}
+<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
+<div class="col-xxl-10 col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12" id="divform" >
+    <form method="post" >
+        {% csrf_token %}
+        <input required type="number" name="numero" placeholder="Numero de empleados que van a ganar" id="numero">
+        <button class="btn btn-secondary" type="submit">Sorteo</button>
+    </form>
+    <br>
+    <h1 id="h1sorteo">Empleados Ganadores Del Sorteo</h1>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Cedula</th>
+                <th>Empleado</th>     
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{empleado.cedula}}</td>
+                <td>{{empleado.nombre}}</td>            
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
+{% endblock %}

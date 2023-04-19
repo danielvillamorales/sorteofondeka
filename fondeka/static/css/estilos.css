@@ -1,0 +1,47 @@
+
+@font-face {
+  font-family: Heycomic;
+  src: url('Hey Comic.otf');
+}
+
+@font-face {
+  font-family: wallnotes;
+  src: url('wallNotes.otf');
+}
+
+@font-face {
+  font-family: coolvetica;
+  src: url('coolveticarg.otf'),url('coolveticargit.otf'),url('coolveticacrammedrg.otf'),url('coolveticacondensedrg.otf');
+}
+body {
+  background-color: #dee6f0;
+  font-size: 1.2em;
+  color: #000;
+  margin: 0;
+  padding: 0;
+}
+
+#h1sorteo{
+  font-family: wallnotes;
+  font-size: 3em;
+  text-align: center;
+  background-color: #1d68ae;
+  color: aliceblue;
+  margin: 0;
+  padding: 0;
+}
+
+#divform{
+  position: relative;
+  top: 10%;
+  background-color: white;
+  opacity: 0.8;
+  border-radius: 20px;
+  padding: 2%;
+}
+
+img {
+  width: 24px;
+  height: auto;
+  padding: 1%;
+}

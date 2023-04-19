@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block content %}
+<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
+<div class="col-xxl-10 col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12" id="divform" >
+    <div class="container-fluid" id="divbuttonpermisos">
+        <a href="../agregar_empleado/" class="btn btn-outline-primary" role="button" ><img src="{% static 'img/agregar.png'%}" id="agregarempleado">Nuevo Empleado</a>
+    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Cedula</th>
+                <th>Nombre</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{empleado.cedula}}</td>
+                <td>{{empleado.nombre}}</td>
+                <td>{% if empleado.estado == 'A'%} Activo {% else %} Inactivo {% endif %}</td>
+                <td>
+                    <a tittle="activar" onclick="confirmar('estas seguro de activar el usuario?', '../activar/{{empleado.id}}');"><img alt="activar" src="{% static 'img/aprobar.png' %}" tittle="aprobar" id="acciones_permisos"></a>
+                    <a tittle="inactivar" onclick="confirmar('estas seguro de inactivar el usuario?', '../inactivar/{{empleado.id}}');"><img alt="inactivar" src="{% static 'img/rechazar.png' %}" tittle="rechazar" id="acciones_permisos"></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
+{% endblock %}

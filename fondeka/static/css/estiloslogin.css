@@ -1,0 +1,19 @@
+body{
+    background-color: #6f9ed8;
+    font-size: 1.2em;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+
+.formulario-login{
+    position: relative;
+    top: 40%;
+    background-color: white;
+    opacity: 0.8;
+    border-radius: 20px;
+    padding: 2%;
+    width: 50%;
+    margin:auto;
+    text-align: center;
+}
