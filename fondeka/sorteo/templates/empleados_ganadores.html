@@ -4,7 +4,7 @@
 <div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
 <div class="col-xxl-10 col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12" id="divform" >
     <div class="container-fluid" id="divbuttonpermisos">
-        <a href="{% url 'reiniciar'%}" class="btn btn-danger" role="button" ><img src="{% static 'img/reloj.png'%}" id="agregarempleado">Reiniciar Ganadores</a>
+        <a onclick="confirmar('DESEA BORRAR TODOS LOS EMPLEADOS GANADORES? ESTA SEGURO?', '../reiniciar/');" class="btn btn-danger" role="button" ><img src="{% static 'img/reloj.png'%}" id="agregarempleado">Reiniciar Ganadores</a>
     </div>
     <h1>Historico Empleados Ganadores</h1>
     <table class="table table-hover">
