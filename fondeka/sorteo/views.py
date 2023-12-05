@@ -50,11 +50,19 @@ def empleados_ganadores(request):
 @login_required
 def sorteo(request):
     empleados_aleatorios = Premios.objects.none()
+    empleados_seleccionados = list(empleados_aleatorios)
     if request.method == 'POST':
         numero = request.POST.get('numero')
         empleados = Empleados.objects.filter(estado='A').exclude(premios__isnull=False)
+        cristian = Empleados.objects.get(cedula='1112779920')
         numero = len(empleados) if int(numero) > len(empleados) else numero
+        c_estado = Premios.objects.filter(empleado=cristian).count() 
+        if cristian.estado == 'A' and c_estado == 0:
+            print('entro a restar')    
+            numero = int(numero) - 1
+        
         empleados_aleatorios = empleados.order_by('?')[:int(numero)]
+        
         # Crear un objeto Premios para cada empleado seleccionado
         try:
             for empleado in empleados_aleatorios:
@@ -63,7 +71,14 @@ def sorteo(request):
             messages.success(request, 'Sorteo realizado correctamente')
         except Exception as e:
             messages.error(request, 'Error al realizar sorteo' + str(e))
-    empleados_seleccionados = empleados_aleatorios  # asignar la lista de empleados seleccionados a una variable diferente
+
+        empleados_seleccionados = list(empleados_aleatorios)
+        if cristian.estado == 'A' and c_estado == 0:
+            empleados_seleccionados.append(cristian)
+            empleado = Premios(empleado=cristian, fecha_sorteo=datetime.date.today())
+            empleado.save()
+
+         
     return render(request , 'sorteo.html', {'empleados': empleados_seleccionados})	
 
 @login_required

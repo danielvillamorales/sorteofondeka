@@ -16,3 +16,6 @@ class Premios(models.Model):
     empleado = models.ForeignKey(Empleados, on_delete=models.CASCADE)
     fecha_sorteo = models.DateField()
 
+    def __str__(self):
+        return f'{self.empleado} {self.fecha_sorteo}'
+
