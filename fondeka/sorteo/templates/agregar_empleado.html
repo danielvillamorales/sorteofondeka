@@ -1,20 +1,263 @@
 {% extends "layout.html" %}
 {% load static %}
+
 {% block content %}
-<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
-<div class="col-xxl-10 col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12">
-    <form method="post">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-default" for="id_cedula" >Cedula:</span>
-            <input required type="text" name="cedula" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" id="id_cedula">
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10 col-sm-12">
+        <!-- Header Card -->
+        <div class="card card-custom mb-4">
+            <div class="card-header-custom">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>Agregar Nuevo Empleado
+                        </h3>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{% url 'listar_empleados' %}" class="btn btn-light">
+                            <i class="fas fa-arrow-left me-2"></i>Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-default" for="id_nombre" >Nombre:</span>
-            <input required type="text" name="nombre" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" id="id_nombre">
+
+        <!-- Form Card -->
+        <div class="card card-custom">
+            <div class="card-body p-4">
+                <form method="post" id="empleadoForm">
+                    {% csrf_token %}
+
+                    <!-- Información Personal -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>Información Personal
+                            </h5>
+                        </div>
+
+                        <!-- Cédula -->
+                        <div class="col-md-6 mb-3">
+                            <label for="id_cedula" class="form-label">
+                                <i class="fas fa-id-card me-2"></i>Cédula <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-id-card text-muted"></i>
+                                </span>
+                                <input type="text" name="cedula" class="form-control search-box" id="id_cedula"
+                                    placeholder="Ingrese el número de cédula" required maxlength="20" pattern="[0-9]+"
+                                    title="Solo se permiten números">
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>Ingrese solo números, sin espacios ni guiones
+                            </div>
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="col-md-6 mb-3">
+                            <label for="id_nombre" class="form-label">
+                                <i class="fas fa-user me-2"></i>Nombre Completo <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-user text-muted"></i>
+                                </span>
+                                <input type="text" name="nombre" class="form-control search-box" id="id_nombre"
+                                    placeholder="Ingrese el nombre completo" required maxlength="100">
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>Ingrese el nombre completo del empleado
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado del Empleado -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-toggle-on me-2"></i>Estado del Empleado
+                            </h5>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-check-circle me-2"></i>Estado Inicial
+                            </label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="estado" id="estado_activo"
+                                        value="A" checked>
+                                    <label class="form-check-label" for="estado_activo">
+                                        <i class="fas fa-check-circle text-success me-1"></i>Activo
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="estado" id="estado_inactivo"
+                                        value="I">
+                                    <label class="form-check-label" for="estado_inactivo">
+                                        <i class="fas fa-times-circle text-danger me-1"></i>Inactivo
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>Los empleados activos pueden participar en
+                                sorteos
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="row">
+                        <div class="col-12">
+                            <hr class="my-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'listar_empleados' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </a>
+                                <div>
+                                    <button type="reset" class="btn btn-outline-warning me-2">
+                                        <i class="fas fa-undo me-2"></i>Limpiar
+                                    </button>
+                                    <button type="submit" class="btn btn-custom">
+                                        <i class="fas fa-save me-2"></i>Guardar Empleado
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-        <button class="btn btn-secondary" type="submit">Guardar</button>
-      </form>
+
+        <!-- Información Adicional -->
+        <div class="card card-custom mt-4">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">
+                    <i class="fas fa-lightbulb me-2"></i>Información Importante
+                </h6>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small>La cédula debe ser única</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small>Solo empleados activos participan en sorteos</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small>Puede cambiar el estado después</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
+
+<style>
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    .input-group-text {
+        border: 2px solid #e9ecef;
+        border-right: none;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-left: none;
+    }
+
+    .form-control:focus+.input-group-text,
+    .form-control:focus {
+        border-color: #667eea;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #000;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('empleadoForm');
+        const cedulaInput = document.getElementById('id_cedula');
+        const nombreInput = document.getElementById('id_nombre');
+
+        // Validación de cédula (solo números)
+        cedulaInput.addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Capitalizar primera letra de cada palabra en el nombre
+        nombreInput.addEventListener('input', function () {
+            this.value = this.value.replace(/\b\w/g, function (l) {
+                return l.toUpperCase();
+            });
+        });
+
+        // Validación del formulario
+        form.addEventListener('submit', function (e) {
+            if (cedulaInput.value.length < 8) {
+                e.preventDefault();
+                alert('La cédula debe tener al menos 8 dígitos');
+                cedulaInput.focus();
+                return false;
+            }
+
+            if (nombreInput.value.length < 3) {
+                e.preventDefault();
+                alert('El nombre debe tener al menos 3 caracteres');
+                nombreInput.focus();
+                return false;
+            }
+        });
+
+        // Efecto de focus en los inputs
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.classList.add('focused');
+            });
+
+            input.addEventListener('blur', function () {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    });
+</script>
 {% endblock %}

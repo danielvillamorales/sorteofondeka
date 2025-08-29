@@ -1,34 +1,253 @@
 {% extends "layout.html" %}
 {% load static %}
+
 {% block content %}
-<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
-<div class="col-xxl-10 col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12" id="divform" >
-    <div class="container-fluid" id="divbuttonpermisos">
-        <a href="../agregar_empleado/" class="btn btn-outline-primary" role="button" ><img src="{% static 'img/agregar.png'%}" id="agregarempleado">Nuevo Empleado</a>
+<div class="row">
+    <!-- Header Card -->
+    <div class="col-12 mb-4">
+        <div class="card card-custom">
+            <div class="card-header-custom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3 class="mb-0">
+                            <i class="fas fa-users me-2"></i>Gestión de Empleados
+                        </h3>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="../agregar_empleado/" class="btn btn-light btn-custom">
+                            <i class="fas fa-plus me-2"></i>Nuevo Empleado
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Cedula</th>
-                <th>Nombre</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for empleado in empleados %}
-            <tr>
-                <td>{{empleado.cedula}}</td>
-                <td>{{empleado.nombre}}</td>
-                <td>{% if empleado.estado == 'A'%} Activo {% else %} Inactivo {% endif %}</td>
-                <td>
-                    <a tittle="activar" onclick="confirmar('estas seguro de activar el usuario?', '../activar/{{empleado.id}}');"><img alt="activar" src="{% static 'img/aprobar.png' %}" tittle="aprobar" id="acciones_permisos"></a>
-                    <a tittle="inactivar" onclick="confirmar('estas seguro de inactivar el usuario?', '../inactivar/{{empleado.id}}');"><img alt="inactivar" src="{% static 'img/rechazar.png' %}" tittle="rechazar" id="acciones_permisos"></a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <!-- Statistics Cards -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-2x text-primary mb-3"></i>
+                        <h4 class="card-title">{{ total_empleados }}</h4>
+                        <p class="card-text text-muted">Total Empleados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                        <h4 class="card-title">{{ empleados_activos }}</h4>
+                        <p class="card-text text-muted">Empleados Activos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-times-circle fa-2x text-danger mb-3"></i>
+                        <h4 class="card-title">{{ empleados_inactivos }}</h4>
+                        <p class="card-text text-muted">Empleados Inactivos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Table Card -->
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-body">
+                <!-- Search Bar -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <form method="GET" class="d-flex">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control search-box border-start-0" name="search"
+                                    value="{{ search_query }}" placeholder="Buscar por nombre o cédula...">
+                                <button class="btn btn-custom" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        {% if search_query %}
+                        <a href="{% url 'listar_empleados' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Limpiar búsqueda
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Results Info -->
+                {% if search_query %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Se encontraron {{ empleados.paginator.count }} empleado(s) para "{{ search_query }}"
+                </div>
+                {% endif %}
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-id-card me-2"></i>Cédula</th>
+                                <th><i class="fas fa-user me-2"></i>Nombre</th>
+                                <th><i class="fas fa-toggle-on me-2"></i>Estado</th>
+                                <th class="text-center"><i class="fas fa-cogs me-2"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for empleado in empleados %}
+                            <tr>
+                                <td>
+                                    <strong>{{ empleado.cedula }}</strong>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3">
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                                                style="width: 40px; height: 40px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ empleado.nombre }}</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if empleado.estado == 'A' %}
+                                    <span class="status-badge status-active">
+                                        <i class="fas fa-check-circle me-1"></i>Activo
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge status-inactive">
+                                        <i class="fas fa-times-circle me-1"></i>Inactivo
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        {% if empleado.estado == 'I' %}
+                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                            onclick="confirmar('¿Estás seguro de activar el empleado {{ empleado.nombre }}?', '../activar/{{empleado.id}}');"
+                                            title="Activar empleado">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        {% else %}
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmar('¿Estás seguro de inactivar el empleado {{ empleado.nombre }}?', '../inactivar/{{empleado.id}}');"
+                                            title="Inactivar empleado">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-search fa-3x mb-3"></i>
+                                        <h5>No se encontraron empleados</h5>
+                                        {% if search_query %}
+                                        <p>Intenta con otros términos de búsqueda</p>
+                                        {% else %}
+                                        <p>No hay empleados registrados</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if empleados.has_other_pages %}
+                <nav aria-label="Navegación de páginas" class="mt-4">
+                    <ul class="pagination pagination-custom justify-content-center">
+                        {% if empleados.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page={{ empleados.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in empleados.paginator.page_range %}
+                        {% if empleados.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > empleados.number|add:'-3' and num < empleados.number|add:'3' %} <li
+                            class="page-item">
+                            <a class="page-link"
+                                href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num
+                                }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if empleados.has_next %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ empleados.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ empleados.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                    </ul>
+                </nav>
+
+                <!-- Page Info -->
+                <div class="text-center text-muted mt-3">
+                    <small>
+                        Mostrando {{ empleados.start_index }} - {{ empleados.end_index }} de {{
+                        empleados.paginator.count }} empleados
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
-<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
+
+<script>
+    // Auto-submit search form when typing
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.querySelector('input[name="search"]');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (this.value.length >= 2 || this.value.length === 0) {
+                    this.form.submit();
+                }
+            }, 500);
+        });
+    });
+</script>
 {% endblock %}

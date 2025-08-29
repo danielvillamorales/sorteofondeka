@@ -1,28 +1,275 @@
 {% extends "layout.html" %}
 {% load static %}
+
 {% block content %}
-<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
-<div class="col-xxl-10 col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12" id="divform" >
-    <div class="container-fluid" id="divbuttonpermisos">
-        <a onclick="confirmar('DESEA BORRAR TODOS LOS EMPLEADOS GANADORES? ESTA SEGURO?', '../reiniciar/');" class="btn btn-danger" role="button" ><img src="{% static 'img/reloj.png'%}" id="agregarempleado">Reiniciar Ganadores</a>
+<div class="row">
+    <!-- Header Card -->
+    <div class="col-12 mb-4">
+        <div class="card card-custom">
+            <div class="card-header-custom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3 class="mb-0">
+                            <i class="fas fa-medal me-2"></i>Empleados Ganadores
+                        </h3>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button
+                            onclick="confirmar('¿DESEA BORRAR TODOS LOS EMPLEADOS GANADORES? ¿ESTÁ SEGURO?', '../reiniciar/');"
+                            class="btn btn-light btn-danger">
+                            <i class="fas fa-trash me-2"></i>Reiniciar Ganadores
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <h1>Historico Empleados Ganadores</h1>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Empleado</th>
-                <th>Fecha Del Sorteo</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for empleado in empleados %}
-            <tr>
-                <td>{{empleado.empleado}}</td>
-                <td>{{empleado.fecha_sorteo}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <!-- Statistics Cards -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-trophy fa-2x text-warning mb-3"></i>
+                        <h4 class="card-title">{{ total_ganadores }}</h4>
+                        <p class="card-text text-muted">Total Ganadores</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-alt fa-2x text-info mb-3"></i>
+                        <h4 class="card-title">{{ fechas_unicas }}</h4>
+                        <p class="card-text text-muted">Fechas de Sorteo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-star fa-2x text-success mb-3"></i>
+                        <h4 class="card-title">{{ empleados.paginator.count }}</h4>
+                        <p class="card-text text-muted">Resultados Actuales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters Card -->
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-body">
+                <!-- Search and Filters -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <form method="GET" class="d-flex">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control search-box border-start-0" name="search"
+                                    value="{{ search_query }}" placeholder="Buscar ganador...">
+                                <button class="btn btn-custom" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <form method="GET" class="d-flex">
+                            <select name="fecha" class="form-select search-box" onchange="this.form.submit()">
+                                <option value="">Todas las fechas</option>
+                                {% for fecha in fechas_formateadas %}
+                                <option value="{{ fecha.formato_ymd }}" {% if fecha.selected %}selected{% endif %}>
+                                    {{ fecha.formato_display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if search_query %}
+                            <input type="hidden" name="search" value="{{ search_query }}">
+                            {% endif %}
+                        </form>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if search_query or fecha_filter %}
+                        <a href="{% url 'empleados_ganadores' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Limpiar filtros
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Results Info -->
+                {% if search_query or fecha_filter %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% if search_query and fecha_filter %}
+                    Se encontraron {{ empleados.paginator.count }} ganador(es) para "{{ search_query }}" en {{
+                    fecha_filter|date:"d/m/Y" }}
+                    {% elif search_query %}
+                    Se encontraron {{ empleados.paginator.count }} ganador(es) para "{{ search_query }}"
+                    {% elif fecha_filter %}
+                    Se encontraron {{ empleados.paginator.count }} ganador(es) del {{ fecha_filter|date:"d/m/Y" }}
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user me-2"></i>Empleado</th>
+                                <th><i class="fas fa-id-card me-2"></i>Cédula</th>
+                                <th><i class="fas fa-calendar me-2"></i>Fecha del Sorteo</th>
+                                <th><i class="fas fa-calendar-week me-2"></i>Día de la Semana</th>
+                                <th><i class="fas fa-trophy me-2"></i>Premio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for premio in empleados %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3">
+                                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center"
+                                                style="width: 40px; height: 40px;">
+                                                <i class="fas fa-trophy text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">{{ premio.empleado.nombre }}</h6>
+                                            <small class="text-muted">
+                                                {% if premio.empleado.estado == 'A' %}
+                                                <span class="status-badge status-active">Activo</span>
+                                                {% else %}
+                                                <span class="status-badge status-inactive">Inactivo</span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ premio.empleado.cedula }}</strong>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar-day text-primary me-2"></i>
+                                        <span>{{ premio.fecha_sorteo|date:"d/m/Y" }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar-week text-info me-2"></i>
+                                        <span>{{ premio.fecha_sorteo|date:"l" }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-gift me-1"></i>Ganador
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-trophy fa-3x mb-3"></i>
+                                        <h5>No hay ganadores registrados</h5>
+                                        {% if search_query or fecha_filter %}
+                                        <p>Intenta con otros filtros de búsqueda</p>
+                                        {% else %}
+                                        <p>Realiza un sorteo para ver los ganadores</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if empleados.has_other_pages %}
+                <nav aria-label="Navegación de páginas" class="mt-4">
+                    <ul class="pagination pagination-custom justify-content-center">
+                        {% if empleados.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_filter %}&fecha={{ fecha_filter }}{% endif %}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page={{ empleados.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_filter %}&fecha={{ fecha_filter }}{% endif %}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in empleados.paginator.page_range %}
+                        {% if empleados.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > empleados.number|add:'-3' and num < empleados.number|add:'3' %} <li
+                            class="page-item">
+                            <a class="page-link"
+                                href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_filter %}&fecha={{ fecha_filter }}{% endif %}">
+                                {{ num }}
+                            </a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if empleados.has_next %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ empleados.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_filter %}&fecha={{ fecha_filter }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ empleados.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if fecha_filter %}&fecha={{ fecha_filter }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                    </ul>
+                </nav>
+
+                <!-- Page Info -->
+                <div class="text-center text-muted mt-3">
+                    <small>
+                        Mostrando {{ empleados.start_index }} - {{ empleados.end_index }} de {{
+                        empleados.paginator.count }} ganadores
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
-<div class="col-xxl-1 col-xl-1 col-lg-1 col-md-1 col-sm-12 col-xs-12 col-12"></div>
+
+<script>
+    // Auto-submit search form when typing
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.querySelector('input[name="search"]');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (this.value.length >= 2 || this.value.length === 0) {
+                    this.form.submit();
+                }
+            }, 500);
+        });
+    });
+</script>
 {% endblock %}
