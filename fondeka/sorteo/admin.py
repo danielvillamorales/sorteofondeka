@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Empleados, Premios
+from .models import Empleados, Premios, PremiosCopia
 
 # Register your models here.
 
@@ -14,9 +14,18 @@ admin.site.register(Empleados, EmpleadosAdmin)
 
 
 class PremiosAdmin(admin.ModelAdmin):
-    list_display = ("empleado__cedula", "empleado__nombre", "fecha_sorteo")
+    list_display = ("empleado", "fecha_sorteo")
     search_fields = ("empleado__nombre", "empleado__cedula")
     list_filter = ("fecha_sorteo",)
 
 
 admin.site.register(Premios, PremiosAdmin)
+
+
+class PremiosCopiaAdmin(admin.ModelAdmin):
+    list_display = ("empleado", "fecha_sorteo")
+    search_fields = ("empleado__nombre", "empleado__cedula")
+    list_filter = ("fecha_sorteo",)
+
+
+admin.site.register(PremiosCopia, PremiosCopiaAdmin)

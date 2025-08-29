@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Empleados, Premios
+from .models import Empleados, Premios, PremiosCopia
 from .forms import EmpleadosForm
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
@@ -102,22 +102,32 @@ def empleados_ganadores(request):
     search_query = request.GET.get("search", "")
     fecha_filter = request.GET.get("fecha", "")
 
-    # Filtrar empleados ganadores
-    empleados = Premios.objects.all()
+    # Filtrar empleados ganadores de ambas tablas
+    empleados_real = Premios.objects.all()
+    empleados_copia = PremiosCopia.objects.all()
 
-    # Filtro por búsqueda (nombre o cédula)
+    # Aplicar filtros antes del union
     if search_query:
-        empleados = empleados.filter(
+        empleados_real = empleados_real.filter(
+            Q(empleado__nombre__icontains=search_query)
+            | Q(empleado__cedula__icontains=search_query)
+        )
+        empleados_copia = empleados_copia.filter(
             Q(empleado__nombre__icontains=search_query)
             | Q(empleado__cedula__icontains=search_query)
         )
 
     # Filtro por fecha
     if fecha_filter:
-        empleados = empleados.filter(fecha_sorteo=fecha_filter)
+        empleados_real = empleados_real.filter(fecha_sorteo=fecha_filter)
+        empleados_copia = empleados_copia.filter(fecha_sorteo=fecha_filter)
 
-    # Ordenar por fecha más reciente
-    empleados = empleados.order_by("-fecha_sorteo")
+    # Unir las consultas
+    empleados = empleados_real.union(empleados_copia)
+
+    # Ordenar por fecha más reciente (convertir a lista para ordenar)
+    empleados_list = list(empleados)
+    empleados_list.sort(key=lambda x: x.fecha_sorteo, reverse=True)
 
     # Obtener fechas únicas para el filtro
     fechas_disponibles = (
@@ -143,7 +153,7 @@ def empleados_ganadores(request):
         )
 
     # Paginación
-    paginator = Paginator(empleados, 10)  # 10 ganadores por página
+    paginator = Paginator(empleados_list, 10)  # 10 ganadores por página
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -153,7 +163,7 @@ def empleados_ganadores(request):
         "fecha_filter": fecha_filter,
         "fechas_disponibles": fechas_disponibles,
         "fechas_formateadas": fechas_formateadas,
-        "total_ganadores": empleados.count(),
+        "total_ganadores": len(empleados_list),
         "fechas_unicas": len(fechas_disponibles),
     }
 
@@ -196,6 +206,14 @@ def sorteo(request):
 
 @login_required
 def reiniciar(request):
-    premios = Premios.objects.all().delete()
+    premios = Premios.objects.all()
+    lista_premios_copia = []
+    for premio in premios:
+        premios_copia = PremiosCopia(
+            empleado=premio.empleado, fecha_sorteo=premio.fecha_sorteo
+        )
+        lista_premios_copia.append(premios_copia)
+    PremiosCopia.objects.bulk_create(lista_premios_copia)
+    premios.delete()
     messages.success(request, "Reinicio realizado correctamente")
     return redirect("empleados_ganadores")
